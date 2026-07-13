@@ -1,1 +1,122 @@
+// === นำ Web App URL ของคุณมาใส่ที่นี่ ===
+const API_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; 
+
+let cart = [];
+let menuData = [];
+
+// Navigation Logic
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
+    });
+});
+
+// Fetch Menu from Google Sheets
+async function loadMenu() {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'getMenu' }),
+            headers: { 'Content-Type': 'text/plain' } // ป้องกัน CORS issue กับ GAS
+        });
+        const res = await response.json();
+        
+        if (res.status === 200) {
+            menuData = res.data;
+            renderMenu();
+        }
+    } catch (error) {
+        console.error('Error loading menu:', error);
+        document.getElementById('menu-container').innerHTML = '<p>เกิดข้อผิดพลาดในการโหลดเมนู (ลองเช็ค Web App URL)</p>';
+    }
+}
+
+// Render Menu to DOM
+function renderMenu() {
+    const container = document.getElementById('menu-container');
+    container.innerHTML = '';
+    
+    menuData.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'menu-item';
+        div.onclick = () => addToCart(item);
+        div.innerHTML = `
+            <h4>${item.name}</h4>
+            <div class="menu-price">฿${item.price}</div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// Cart Logic
+function addToCart(item) {
+    cart.push(item);
+    updateCartUI();
+}
+
+function updateCartUI() {
+    const cartList = document.getElementById('cart-list');
+    cartList.innerHTML = '';
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        total += item.price;
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${item.name}</span> <span>฿${item.price} <i class="fas fa-times" style="color:red; cursor:pointer;" onclick="removeFromCart(${index})"></i></span>`;
+        cartList.appendChild(li);
+    });
+
+    document.getElementById('total-price').innerText = `฿${total}`;
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartUI();
+}
+
+// Checkout & Submit to GAS
+async function checkout(paymentMethod) {
+    if (cart.length === 0) return alert('ตะกร้าว่างเปล่า!');
+    
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    
+    // Disable buttons during process
+    document.querySelectorAll('.btn-pay').forEach(b => b.disabled = true);
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'submitOrder',
+                payload: {
+                    items: cart,
+                    total: total,
+                    paymentMethod: paymentMethod
+                }
+            }),
+            headers: { 'Content-Type': 'text/plain' }
+        });
+        
+        const res = await response.json();
+        if (res.status === 200) {
+            alert(`ชำระเงินสำเร็จ! Order ID: ${res.data.orderId}`);
+            cart = [];
+            updateCartUI();
+        }
+    } catch (error) {
+        alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+        console.error(error);
+    } finally {
+        document.querySelectorAll('.btn-pay').forEach(b => b.disabled = false);
+    }
+}
+
+// Initialize
+window.onload = () => {
+    loadMenu();
+};
 
