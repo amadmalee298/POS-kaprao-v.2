@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAPRAO POS Enterprise</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <h2>KAPRAO</h2>
+            <nav>
+                <button class="nav-btn active" data-target="pos-view"><i class="fas fa-cash-register"></i> POS</button>
+                <button class="nav-btn" data-target="kds-view"><i class="fas fa-fire-burner"></i> Kitchen (KDS)</button>
+                <button class="nav-btn" data-target="dash-view"><i class="fas fa-chart-line"></i> Dashboard</button>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section id="pos-view" class="view-section active">
+                <div class="pos-grid">
+                    <div class="menu-area">
+                        <div class="header">
+                            <h3>เมนูอาหาร (Menu)</h3>
+                        </div>
+                        <div id="menu-container" class="menu-list">
+                            <p>Loading menu...</p>
+                        </div>
+                    </div>
+
+                    <div class="cart-area">
+                        <h3>รายการสั่งซื้อ (Cart)</h3>
+                        <ul id="cart-list"></ul>
+                        <div class="cart-summary">
+                            <div class="total">รวมยอด: <span id="total-price">฿0</span></div>
+                            <div class="checkout-actions">
+                                <button class="btn-pay cash" onclick="checkout('Cash')">เงินสด</button>
+                                <button class="btn-pay qr" onclick="checkout('QR PromptPay')">QR Pay</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="kds-view" class="view-section">
+                <h2>ระบบครัว (Kitchen Display)</h2>
+                <p>อยู่ระหว่างการพัฒนาโมดูล KDS...</p>
+            </section>
+
+            <section id="dash-view" class="view-section">
+                <h2>Dashboard ผู้บริหาร</h2>
+                <p>อยู่ระหว่างการพัฒนาโมดูลเชื่อมต่อ Google Charts...</p>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
 
